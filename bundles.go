@@ -62,8 +62,8 @@ func (rpc *RPC) buildRPCRequest() error {
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("X-Auction-Signature", rpc.Signature)   //sould be X-Flashbots-Signature for other builders like Flashbots
-	req.Header.Add("X-Flashbots-Signature", rpc.Signature) //sould be X-Flashbots-Signature for other builders like Flashbots
+	req.Header.Add("X-Auction-Signature", rpc.Signature) //sould be X-Flashbots-Signature for other builders like Flashbots
+	req.Header.Add("X-Flashbots-Signature", rpc.Signature)
 	for k, v := range rpc.Headers {
 		req.Header.Add(k, v)
 	}
@@ -71,8 +71,16 @@ func (rpc *RPC) buildRPCRequest() error {
 	return nil
 }
 
-// func GetMyRawTx()                                                 {}
-// func (rpc *RPC) SendBundle(privKey *ecdsa.PrivateKey, params ...interface{}) {}
+func (rpc *RPC) SendBundle(privKey *ecdsa.PrivateKey, params ...interface{}) (*SendBundleResponse, error) {
+	response, err := rpc.makeRpcCall("eth_sendBundle", privKey, params...)
+	if err != nil {
+		return nil, err
+	}
+	var sbResponse = new(SendBundleResponse)
+	err = json.Unmarshal(response.Result, &sbResponse)
+	return sbResponse, err
+}
+
 func (rpc *RPC) CallBundle(privKey *ecdsa.PrivateKey, params ...interface{}) (*CallBundleResponse, error) {
 	response, err := rpc.makeRpcCall("eth_callBundle", privKey, params...)
 	if err != nil {

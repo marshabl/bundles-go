@@ -66,6 +66,10 @@ type SendBundleRequest struct {
 	RevertingTxs *[]string `json:"revertingTxHashes,omitempty"` // (Optional) Array[String], A list of tx hashes that are allowed to revert
 }
 
+type SendBundleResponse struct {
+	BundleHash string `json:"bundleHash"`
+}
+
 type rpcResponse struct {
 	ID      int             `json:"id"`
 	JSONRPC string          `json:"jsonrpc"`
