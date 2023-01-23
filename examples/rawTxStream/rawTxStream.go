@@ -3,7 +3,6 @@ package main
 import (
 	"bundles"
 	"bundles/internal"
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -17,6 +16,7 @@ import (
 const SYSTEM = "ethereum"
 const NETWORK = 1
 const MONITORADDRESS = "0xEf1c6E67703c7BD7107eed8303Fbe6EC2554BF6B" //uniswap autorouter
+const RPCURL = "https://api.blocknative.com/v1/auction"             //"https://relay.flashbots.net"
 
 type Payload struct {
 	Event struct {
@@ -35,17 +35,15 @@ func txnHandler(e []byte) {
 		if err != nil {
 			log.Printf("failed to build tx: %v", err)
 		}
-
-		var buff bytes.Buffer
-		tx.EncodeRLP(&buff)
-
-		rawTx := fmt.Sprintf("0x%x", buff.Bytes())
+		blockNumber := event.Event.Transaction.PendingBlockNumber + 1
+		blockNumberHex := internal.IntToHex(blockNumber)
+		rawTx := "0x" + internal.TxToRlp(tx)[6:]
 		fmt.Println(rawTx)
 		var privateKey, _ = crypto.GenerateKey()
-		rpc := bundles.NewRPC("https://api.blocknative.com/v1/auction")
+		rpc := bundles.NewRPC(RPCURL)
 		opts := bundles.CallBundleParam{
 			Txs:              []string{rawTx},
-			BlockNumber:      "0xfaf049",
+			BlockNumber:      blockNumberHex,
 			StateBlockNumber: "latest",
 		}
 

@@ -20,6 +20,10 @@ type RpcError struct {
 	Message string `json:"message"`
 }
 
+type RelayErrorResponse struct {
+	Error string `json:"error"`
+}
+
 func (err RpcError) Error() string {
 	return fmt.Sprintf("Error %d (%s)", err.Code, err.Message)
 }
@@ -145,7 +149,8 @@ func (rpc *RPC) buildRPCRequest() error {
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("X-Auction-Signature", rpc.Signature) //sould be X-Flashbots-Signature for other builders like Flashbots
+	req.Header.Add("X-Auction-Signature", rpc.Signature)   //sould be X-Flashbots-Signature for other builders like Flashbots
+	req.Header.Add("X-Flashbots-Signature", rpc.Signature) //sould be X-Flashbots-Signature for other builders like Flashbots
 	for k, v := range rpc.Headers {
 		req.Header.Add(k, v)
 	}
@@ -191,6 +196,12 @@ func (rpc *RPC) makeRpcCall(method string, privKey *ecdsa.PrivateKey, params ...
 	if err != nil {
 		return nil, err
 	}
+
+	// errorResp := new(RelayErrorResponse)
+	// if err := json.Unmarshal(data, errorResp); err == nil && errorResp.Error != "" {
+	// 	// relay returned an error
+	// 	return nil, fmt.Errorf("%w: %s", ErrRelayErrorResponse, errorResp.Error)
+	// }
 
 	resp := new(rpcResponse)
 	if err := json.Unmarshal(data, resp); err != nil {

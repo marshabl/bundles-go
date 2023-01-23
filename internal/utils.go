@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"math/big"
@@ -23,6 +24,7 @@ type MpexTransaction struct {
 	S                    string   `json:"s"`
 	Type                 int      `json:"type"`
 	Hash                 string   `json:"hash"`
+	PendingBlockNumber   int      `json:"pendingBlockNumber"`
 }
 
 func convertStringToBigInt(s string, base int) (*big.Int, error) {
@@ -32,6 +34,16 @@ func convertStringToBigInt(s string, base int) (*big.Int, error) {
 		return nil, fmt.Errorf("failed to set string %s to base %v", s, base)
 	}
 	return ret, nil
+}
+
+func IntToHex(i int) string {
+	return fmt.Sprintf("0x%x", i)
+}
+
+func TxToRlp(tx *types.Transaction) string {
+	var buff bytes.Buffer
+	tx.EncodeRLP(&buff)
+	return fmt.Sprintf("%x", buff.Bytes())
 }
 
 func BuildTxFromMpex(m *MpexTransaction) (*types.Transaction, error) {
