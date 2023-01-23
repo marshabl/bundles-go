@@ -35,10 +35,12 @@ func txnHandler(e []byte) {
 		if err != nil {
 			log.Printf("failed to build tx: %v", err)
 		}
+
 		blockNumber := event.Event.Transaction.PendingBlockNumber + 1
 		blockNumberHex := internal.IntToHex(blockNumber)
-		rawTx := "0x" + internal.TxToRlp(tx)[6:]
+		rawTx := "0x" + internal.TxToRlp(tx)[6:] //ignore first 6 characters - https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/
 		fmt.Println(rawTx)
+		fmt.Println(event.Event.Transaction.Hash)
 		var privateKey, _ = crypto.GenerateKey()
 		rpc := bundles.NewRPC(RPCURL)
 		opts := bundles.CallBundleParam{
